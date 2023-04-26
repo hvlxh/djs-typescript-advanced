@@ -1,5 +1,5 @@
 {
-  "name": "advanced-template",
+  "name": "djs-typescript-advanced",
   "version": "1.0.0",
   "description": "",
   "main": "build/index.js",
@@ -29,5 +29,9 @@
     "standard": "^17.0.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "chalk": "^5.2.0",
+    "discord.js": "^14.9.0"
   }
 }
