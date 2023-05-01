@@ -10,7 +10,7 @@ import {
   ApplicationCommandSubGroupData
 } from 'discord.js'
 import { readdir, stat } from 'node:fs/promises'
-
+import { table, TableUserConfig } from 'table'
 import chalk from 'chalk'
 import Logger from './Logger.js'
 import config from '../../config.json' assert { type: 'json' }
@@ -59,8 +59,38 @@ class Bot extends Client {
   }
 
   private async loadEvents () {
+    const contents = [['No.', 'Name', 'Nick', 'Once']]
+    const config: TableUserConfig = {
+      drawHorizontalLine: (lineIndex: number, rowCount: number) => {
+        return lineIndex === 1 || lineIndex === 0 || lineIndex === rowCount
+      },
+
+      border: {
+        topBody: chalk.gray('─'),
+        topJoin: chalk.gray('┬'),
+        topLeft: chalk.gray('┌'),
+        topRight: chalk.gray('┐'),
+
+        bottomBody: chalk.gray('─'),
+        bottomJoin: chalk.gray('┴'),
+        bottomLeft: chalk.gray('└'),
+        bottomRight: chalk.gray('┘'),
+
+        bodyLeft: chalk.gray('│'),
+        bodyRight: chalk.gray('│'),
+        bodyJoin: chalk.gray('│'),
+
+        joinBody: chalk.gray('─'),
+        joinLeft: chalk.gray('├'),
+        joinRight: chalk.gray('┤'),
+        joinJoin: chalk.gray('┼')
+      }
+    }
+
+    console.info(chalk.bold('Loading Events...'), chalk.bold('evt'))
     if ((await stat('src/main/events')).isDirectory()) {
       const files = await readdir('./src/main/events')
+      let i = 1
       for await (const file of files) {
         if (!(await stat(`src/main/events/${file}`)).isFile()) return
         const event: Event<keyof ClientEvents> = new (
@@ -69,22 +99,22 @@ class Bot extends Client {
 
         if (event.options.once) {
           super.once(event.options.name, event.run)
-          console.info(
-            `Loading "${event.options.name}${
-              event.options.nick ? `(${event.options.nick})` : ''
-            }" only once`,
-            chalk.bold('evt')
-          )
         } else {
           super.on(event.options.name, event.run)
-          console.info(
-            `Loading "${event.options.name}${
-              event.options.nick ? `(${event.options.nick})` : ''
-            }"`,
-            chalk.bold('evt')
-          )
         }
+
+        contents.push([
+          String(`${i++}.`),
+          event.options.name,
+          event.options.nick || '(None)',
+          event.options.once ? 'Yes' : 'No'
+        ])
       }
+      table(contents, config)
+        .split('\n')
+        .forEach(text => {
+          console.info(text, chalk.bold('evt'))
+        })
     }
   }
 
