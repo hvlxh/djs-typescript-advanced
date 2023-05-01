@@ -10,7 +10,7 @@ import {
   ApplicationCommandSubGroupData
 } from 'discord.js'
 import { readdir, stat } from 'node:fs/promises'
-
+import { table, TableUserConfig } from 'table'
 import chalk from 'chalk'
 import Logger from './Logger.js'
 import config from '../../config.json' assert { type: 'json' }
@@ -59,8 +59,38 @@ class Bot extends Client {
   }
 
   private async loadEvents () {
+    const contents = [['No.', 'Name', 'Nick', 'Once']]
+    const config: TableUserConfig = {
+      drawHorizontalLine: (lineIndex: number, rowCount: number) => {
+        return lineIndex === 1 || lineIndex === 0 || lineIndex === rowCount
+      },
+
+      border: {
+        topBody: chalk.gray('─'),
+        topJoin: chalk.gray('┬'),
+        topLeft: chalk.gray('┌'),
+        topRight: chalk.gray('┐'),
+
+        bottomBody: chalk.gray('─'),
+        bottomJoin: chalk.gray('┴'),
+        bottomLeft: chalk.gray('└'),
+        bottomRight: chalk.gray('┘'),
+
+        bodyLeft: chalk.gray('│'),
+        bodyRight: chalk.gray('│'),
+        bodyJoin: chalk.gray('│'),
+
+        joinBody: chalk.gray('─'),
+        joinLeft: chalk.gray('├'),
+        joinRight: chalk.gray('┤'),
+        joinJoin: chalk.gray('┼')
+      }
+    }
+
+    console.info(chalk.bold('Loading Events...'), chalk.bold('evt'))
     if ((await stat('src/main/events')).isDirectory()) {
       const files = await readdir('./src/main/events')
+      let i = 1
       for await (const file of files) {
         if (!(await stat(`src/main/events/${file}`)).isFile()) return
         const event: Event<keyof ClientEvents> = new (
@@ -69,28 +99,58 @@ class Bot extends Client {
 
         if (event.options.once) {
           super.once(event.options.name, event.run)
-          console.info(
-            `Loading "${event.options.name}${
-              event.options.nick ? `(${event.options.nick})` : ''
-            }" only once`,
-            chalk.bold('evt')
-          )
         } else {
           super.on(event.options.name, event.run)
-          console.info(
-            `Loading "${event.options.name}${
-              event.options.nick ? `(${event.options.nick})` : ''
-            }"`,
-            chalk.bold('evt')
-          )
         }
+
+        contents.push([
+          String(`${i++}.`),
+          event.options.name,
+          event.options.nick || '(None)',
+          event.options.once ? 'Yes' : 'No'
+        ])
       }
+      table(contents, config)
+        .split('\n')
+        .forEach(text => {
+          console.info(text, chalk.bold('evt'))
+        })
     }
   }
 
   private async loadSlashes () {
+    const contents = [['No.', 'Name']]
+    const config: TableUserConfig = {
+      drawHorizontalLine: (lineIndex: number, rowCount: number) => {
+        return lineIndex === 1 || lineIndex === 0 || lineIndex === rowCount
+      },
+
+      border: {
+        topBody: chalk.gray('─'),
+        topJoin: chalk.gray('┬'),
+        topLeft: chalk.gray('┌'),
+        topRight: chalk.gray('┐'),
+
+        bottomBody: chalk.gray('─'),
+        bottomJoin: chalk.gray('┴'),
+        bottomLeft: chalk.gray('└'),
+        bottomRight: chalk.gray('┘'),
+
+        bodyLeft: chalk.gray('│'),
+        bodyRight: chalk.gray('│'),
+        bodyJoin: chalk.gray('│'),
+
+        joinBody: chalk.gray('─'),
+        joinLeft: chalk.gray('├'),
+        joinRight: chalk.gray('┤'),
+        joinJoin: chalk.gray('┼')
+      }
+    }
+
+    console.info(chalk.bold('Loading Slash Commands'), chalk.bold('cmd'))
     if ((await stat('src/main/commands')).isDirectory()) {
       const files = await readdir('./src/main/commands')
+      let i = 1
       for await (const file of files) {
         if ((await stat(`src/main/commands/${file}`)).isFile()) {
           const cmd: Command = new (
@@ -99,7 +159,7 @@ class Bot extends Client {
 
           this.commands.array.push(cmd.options)
           this.commands.collection.set(cmd.options.name, cmd)
-          console.info(`Loading "${cmd.options.name}"`, chalk.bold('cmd'))
+          contents.push([String(`${i++}.`), cmd.options.name])
         } else {
           const cmd: ChatInputApplicationCommandData = {
             name: file.toLowerCase(),
@@ -123,10 +183,10 @@ class Bot extends Client {
                 `${cmd.name}/${nCmd.options.name}`,
                 nCmd
               )
-              console.info(
-                `Loading "${cmd.name}/${nCmd.options.name}"`,
-                chalk.bold('cmd')
-              )
+              contents.push([
+                String(`${i++}.`),
+                `${cmd.name}/${nCmd.options.name}`
+              ])
             } else {
               const nCmd: ApplicationCommandSubGroupData = {
                 name: nFile.toLowerCase(),
@@ -150,11 +210,10 @@ class Bot extends Client {
                   `${cmd.name}/${nCmd.name}/${nnCmd.options.name}`,
                   nnCmd
                 )
-
-                console.info(
-                  `Loading "${cmd.name}/${nCmd.name}/${nnCmd.options.name}"`,
-                  chalk.bold('cmd')
-                )
+                contents.push([
+                  String(`${i++}.`),
+                  `${cmd.name}/${nCmd.name}/${nnCmd.options.name}`
+                ])
               }
 
               cmd.options?.push(nCmd)
@@ -162,6 +221,11 @@ class Bot extends Client {
           }
 
           this.commands.array.push(cmd)
+          table(contents, config)
+            .split('\n')
+            .forEach(c => {
+              console.info(c, chalk.bold('cmd'))
+            })
         }
       }
     }
