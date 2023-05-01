@@ -11,6 +11,7 @@ import {
 } from 'discord.js'
 import { readdir, stat } from 'node:fs/promises'
 
+import chalk from 'chalk'
 import Logger from './Logger.js'
 import config from '../../config.json' assert { type: 'json' }
 import { Event } from '../base/Event.js'
@@ -51,7 +52,8 @@ class Bot extends Client {
   }
 
   override async login () {
-    Promise.all([this.loadEvents(), this.loadSlashes()])
+    await this.loadEvents()
+    await this.loadSlashes()
 
     return super.login(config.token)
   }
@@ -67,8 +69,20 @@ class Bot extends Client {
 
         if (event.options.once) {
           super.once(event.options.name, event.run)
+          console.info(
+            `Loading "${event.options.name}${
+              event.options.nick ? `(${event.options.nick})` : ''
+            }" only once`,
+            chalk.bold('evt')
+          )
         } else {
           super.on(event.options.name, event.run)
+          console.info(
+            `Loading "${event.options.name}${
+              event.options.nick ? `(${event.options.nick})` : ''
+            }"`,
+            chalk.bold('evt')
+          )
         }
       }
     }
@@ -85,6 +99,7 @@ class Bot extends Client {
 
           this.commands.array.push(cmd.options)
           this.commands.collection.set(cmd.options.name, cmd)
+          console.info(`Loading "${cmd.options.name}"`, chalk.bold('cmd'))
         } else {
           const cmd: ChatInputApplicationCommandData = {
             name: file.toLowerCase(),
@@ -108,6 +123,10 @@ class Bot extends Client {
                 `${cmd.name}/${nCmd.options.name}`,
                 nCmd
               )
+              console.info(
+                `Loading "${cmd.name}/${nCmd.options.name}"`,
+                chalk.bold('cmd')
+              )
             } else {
               const nCmd: ApplicationCommandSubGroupData = {
                 name: nFile.toLowerCase(),
@@ -130,6 +149,11 @@ class Bot extends Client {
                 this.commands.collection.set(
                   `${cmd.name}/${nCmd.name}/${nnCmd.options.name}`,
                   nnCmd
+                )
+
+                console.info(
+                  `Loading "${cmd.name}/${nCmd.name}/${nnCmd.options.name}"`,
+                  chalk.bold('cmd')
                 )
               }
 
