@@ -9,17 +9,16 @@ import {
   ApplicationCommandOptionType,
   ApplicationCommandSubGroupData
 } from 'discord.js'
-import { readdir, stat } from 'node:fs/promises'
-import { table, TableUserConfig } from 'table'
 import chalk from 'chalk'
 import Logger from './Logger.js'
-import config from '../../config.json' assert { type: 'json' }
 import { Event } from '../base/Event.js'
 import { Command } from '../base/Command.js'
 import { Subcommand } from '../base/Subcommand.js'
+import { readdir, stat } from 'node:fs/promises'
+import { table, TableUserConfig } from 'table'
 
 class Bot extends Client {
-  public readonly config = config
+  public readonly config = process.env
   public readonly commands: {
     array: ChatInputApplicationCommandData[]
     collection: Collection<string, Command>
@@ -55,7 +54,7 @@ class Bot extends Client {
     await this.loadEvents()
     await this.loadSlashes()
 
-    return super.login(config.token)
+    return super.login(this.config.TOKEN)
   }
 
   private async loadEvents () {
