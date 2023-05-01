@@ -119,8 +119,38 @@ class Bot extends Client {
   }
 
   private async loadSlashes () {
+    const contents = [['No.', 'Name']]
+    const config: TableUserConfig = {
+      drawHorizontalLine: (lineIndex: number, rowCount: number) => {
+        return lineIndex === 1 || lineIndex === 0 || lineIndex === rowCount
+      },
+
+      border: {
+        topBody: chalk.gray('─'),
+        topJoin: chalk.gray('┬'),
+        topLeft: chalk.gray('┌'),
+        topRight: chalk.gray('┐'),
+
+        bottomBody: chalk.gray('─'),
+        bottomJoin: chalk.gray('┴'),
+        bottomLeft: chalk.gray('└'),
+        bottomRight: chalk.gray('┘'),
+
+        bodyLeft: chalk.gray('│'),
+        bodyRight: chalk.gray('│'),
+        bodyJoin: chalk.gray('│'),
+
+        joinBody: chalk.gray('─'),
+        joinLeft: chalk.gray('├'),
+        joinRight: chalk.gray('┤'),
+        joinJoin: chalk.gray('┼')
+      }
+    }
+
+    console.info(chalk.bold('Loading Slash Commands'), chalk.bold('cmd'))
     if ((await stat('src/main/commands')).isDirectory()) {
       const files = await readdir('./src/main/commands')
+      let i = 1
       for await (const file of files) {
         if ((await stat(`src/main/commands/${file}`)).isFile()) {
           const cmd: Command = new (
@@ -129,7 +159,7 @@ class Bot extends Client {
 
           this.commands.array.push(cmd.options)
           this.commands.collection.set(cmd.options.name, cmd)
-          console.info(`Loading "${cmd.options.name}"`, chalk.bold('cmd'))
+          contents.push([String(`${i++}.`), cmd.options.name])
         } else {
           const cmd: ChatInputApplicationCommandData = {
             name: file.toLowerCase(),
@@ -153,10 +183,10 @@ class Bot extends Client {
                 `${cmd.name}/${nCmd.options.name}`,
                 nCmd
               )
-              console.info(
-                `Loading "${cmd.name}/${nCmd.options.name}"`,
-                chalk.bold('cmd')
-              )
+              contents.push([
+                String(`${i++}.`),
+                `${cmd.name}/${nCmd.options.name}`
+              ])
             } else {
               const nCmd: ApplicationCommandSubGroupData = {
                 name: nFile.toLowerCase(),
@@ -180,11 +210,10 @@ class Bot extends Client {
                   `${cmd.name}/${nCmd.name}/${nnCmd.options.name}`,
                   nnCmd
                 )
-
-                console.info(
-                  `Loading "${cmd.name}/${nCmd.name}/${nnCmd.options.name}"`,
-                  chalk.bold('cmd')
-                )
+                contents.push([
+                  String(`${i++}.`),
+                  `${cmd.name}/${nCmd.name}/${nnCmd.options.name}`
+                ])
               }
 
               cmd.options?.push(nCmd)
@@ -192,6 +221,11 @@ class Bot extends Client {
           }
 
           this.commands.array.push(cmd)
+          table(contents, config)
+            .split('\n')
+            .forEach(c => {
+              console.info(c, chalk.bold('cmd'))
+            })
         }
       }
     }
