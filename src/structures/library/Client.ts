@@ -4,6 +4,7 @@ import {
   Partials,
   ClientEvents,
   Collection,
+  GatewayIntentBits as Intents,
   ChatInputApplicationCommandData,
   ApplicationCommandOptionType,
   ApplicationCommandSubGroupData
@@ -25,7 +26,14 @@ class Bot extends Client {
 
   constructor () {
     super({
-      intents: '3146241',
+      intents: [
+        Intents.DirectMessages,
+        Intents.Guilds,
+        Intents.GuildMembers,
+        Intents.GuildMessages,
+        Intents.GuildEmojisAndStickers,
+        Intents.GuildPresences
+      ],
       partials: [
         Partials.Channel,
         Partials.GuildMember,
@@ -53,9 +61,9 @@ class Bot extends Client {
       const files = await readdir('./src/main/events')
       for await (const file of files) {
         if (!(await stat(`src/main/events/${file}`)).isFile()) return
-        const event: Event<keyof ClientEvents> =
-          new // eslint-disable-next-line new-cap
-          (await import(`../../main/events/${file}`)).default()
+        const event: Event<keyof ClientEvents> = new (
+          await import(`../../main/events/${file}`)
+        ).default()
 
         if (event.options.once) {
           super.once(event.options.name, event.run)
@@ -71,8 +79,9 @@ class Bot extends Client {
       const files = await readdir('./src/main/commands')
       for await (const file of files) {
         if ((await stat(`src/main/commands/${file}`)).isFile()) {
-          const cmd: Command = new // eslint-disable-next-line new-cap
-          (await import(`../../main/commands/${file}`)).default()
+          const cmd: Command = new (
+            await import(`../../main/commands/${file}`)
+          ).default()
 
           this.commands.array.push(cmd.options)
           this.commands.collection.set(cmd.options.name, cmd)
@@ -87,8 +96,9 @@ class Bot extends Client {
             `src/main/commands/${file}`
           )) {
             if ((await stat(`src/main/commands/${file}/${nFile}`)).isFile()) {
-              const nCmd: Subcommand = new // eslint-disable-next-line new-cap
-              (await import(`../../main/commands/${file}/${nFile}`)).default()
+              const nCmd: Subcommand = new (
+                await import(`../../main/commands/${file}/${nFile}`)
+              ).default()
 
               cmd.options?.push({
                 ...nCmd.options,
