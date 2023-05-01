@@ -2,26 +2,49 @@ import chalk from 'chalk'
 
 type LogType = 'info' | 'warn' | 'error' | 'debug'
 
-function Logger () {
-  for (const what of ['info', 'warn', 'error', 'debug']) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const backup = console[what]
-    const d = new Date().toLocaleString().replace(',', '').toUpperCase()
+interface Logger extends Console {
+  info(text: string, group?: string): void
+  warn(text: string, group?: string): void
+  debug(text: string, group?: string): void
+  error(text: string, group?: string): void
+}
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    console[what] = (text: string, group?: text) => {
-      if (group) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        backup(`[${d} ${colorize(what)}] [${group}] ${text}`)
-      } else {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        backup(`[${d} ${colorize(what)}] ${text}`)
-      }
-    }
+const myConsole: Logger = console
+
+function Logger () {
+  const backup = {
+    info: console.info,
+    warn: console.warn,
+    error: console.error,
+    debug: console.debug
+  }
+
+  myConsole.info = (text: string, group?: string) => {
+    const d = new Date().toLocaleString().toUpperCase().replace(', ', ' ')
+
+    if (group) backup.info(`[${d} ${colorize('info')}] [${group}] ${text}`)
+    else backup.info(`[${d} ${colorize('info')}] ${text}`)
+  }
+
+  myConsole.warn = (text: string, group?: string) => {
+    const d = new Date().toLocaleString().toUpperCase().replace(', ', ' ')
+
+    if (group) backup.info(`[${d} ${colorize('warn')}] [${group}] ${text}`)
+    else backup.info(`[${d} ${colorize('warn')}] ${text}`)
+  }
+
+  myConsole.error = (text: string, group?: string) => {
+    const d = new Date().toLocaleString().toUpperCase().replace(', ', ' ')
+
+    if (group) backup.info(`[${d} ${colorize('error')}] [${group}] ${text}`)
+    else backup.info(`[${d} ${colorize('error')}] ${text}`)
+  }
+
+  myConsole.debug = (text: string, group?: string) => {
+    const d = new Date().toLocaleString().toUpperCase().replace(', ', ' ')
+
+    if (group) backup.info(`[${d} ${colorize('debug')}] [${group}] ${text}`)
+    else backup.info(`[${d} ${colorize('debug')}] ${text}`)
   }
 }
 
