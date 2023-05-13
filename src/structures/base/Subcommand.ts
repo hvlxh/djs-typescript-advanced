@@ -11,10 +11,14 @@ export interface SubcommandRun {
   client: Bot
 }
 
-export abstract class Subcommand {
-  readonly options: Omit<ApplicationCommandSubCommandData, 'type'>
+interface SubcommandOptions extends ApplicationCommandSubCommandData {
+  dev?: boolean
+}
 
-  constructor (options: Omit<ApplicationCommandSubCommandData, 'type'>) {
+export abstract class Subcommand {
+  readonly options: Omit<SubcommandOptions, 'type'>
+
+  constructor (options: Omit<SubcommandOptions, 'type'>) {
     this.options = options
   }
 

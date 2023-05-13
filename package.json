@@ -11,7 +11,7 @@
     "build:start": "node .",
     "build": "npm run build:eslint && npm run build:compile && npm run build:lint && npm run build:start",
     "start": "node --loader ts-node/esm src/index.ts",
-    "start:dev": "nodemon src/index.ts"
+    "dev": "nodemon src/index.ts"
   },
   "keywords": [],
   "author": "",

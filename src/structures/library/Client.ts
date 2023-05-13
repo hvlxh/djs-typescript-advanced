@@ -57,7 +57,7 @@ class Bot extends Client {
     return super.login(this.config.TOKEN)
   }
 
-  private async loadEvents () {
+  public async loadEvents () {
     const contents = [['No.', 'Name', 'Nick', 'Once']]
     const config: TableUserConfig = {
       drawHorizontalLine: (lineIndex: number, rowCount: number) => {
@@ -117,7 +117,7 @@ class Bot extends Client {
     }
   }
 
-  private async loadSlashes () {
+  public async loadSlashes () {
     const contents = [['No.', 'Name']]
     const config: TableUserConfig = {
       drawHorizontalLine: (lineIndex: number, rowCount: number) => {

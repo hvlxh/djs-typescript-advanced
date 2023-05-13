@@ -11,10 +11,14 @@ export interface CommandRun {
   client: Bot
 }
 
-export abstract class Command {
-  readonly options: ChatInputApplicationCommandData
+interface CommandOptions extends ChatInputApplicationCommandData {
+  dev?: boolean
+}
 
-  constructor (options: ChatInputApplicationCommandData) {
+export abstract class Command {
+  readonly options: CommandOptions
+
+  constructor (options: CommandOptions) {
     this.options = options
   }
 

@@ -1,6 +1,17 @@
 import { Event } from '../../structures/base/Event.js'
 import bot from '../../index.js'
 import chalk from 'chalk'
+import {
+  ChatInputApplicationCommandData,
+  ApplicationCommandSubGroupData,
+  ApplicationCommandNonOptionsData,
+  ApplicationCommandChannelOptionData,
+  ApplicationCommandAutocompleteNumericOptionData,
+  ApplicationCommandAutocompleteStringOptionData,
+  ApplicationCommandNumericOptionData,
+  ApplicationCommandStringOptionData,
+  ApplicationCommandSubCommandData
+} from 'discord.js'
 
 class ReadyEvent extends Event<'ready'> {
   constructor () {
