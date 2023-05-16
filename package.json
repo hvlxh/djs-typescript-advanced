@@ -5,11 +5,10 @@
   "main": "build/index.js",
   "type": "module",
   "scripts": {
-    "build:eslint": "eslint .",
+    "build:lint": "eslint .",
     "build:compile": "tsc",
-    "build:lint": "standard --fix .",
     "build:start": "node .",
-    "build": "npm run build:eslint && npm run build:compile && npm run build:lint && npm run build:start",
+    "build": "npm run build:lint && npm run start",
     "start": "node --loader ts-node/esm src/index.ts",
     "dev": "nodemon src/index.ts"
   },
@@ -26,7 +25,6 @@
     "eslint-plugin-n": "^15.7.0",
     "eslint-plugin-promise": "^6.1.1",
     "nodemon": "^2.0.22",
-    "standard": "^17.0.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
   },
