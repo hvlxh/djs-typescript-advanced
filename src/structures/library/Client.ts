@@ -220,14 +220,15 @@ class Bot extends Client {
           }
 
           this.commands.array.push(cmd)
-          table(contents, config)
-            .split('\n')
-            .forEach(c => {
-              console.info(c, chalk.bold('cmd'))
-            })
         }
       }
     }
+
+    table(contents, config)
+      .split('\n')
+      .forEach(c => {
+        console.info(c, chalk.bold('cmd'))
+      })
   }
 }
 
