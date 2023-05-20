@@ -1,17 +1,6 @@
 import { Event } from '../../structures/base/Event.js'
 import bot from '../../index.js'
 import chalk from 'chalk'
-import {
-  ChatInputApplicationCommandData,
-  ApplicationCommandSubGroupData,
-  ApplicationCommandNonOptionsData,
-  ApplicationCommandChannelOptionData,
-  ApplicationCommandAutocompleteNumericOptionData,
-  ApplicationCommandAutocompleteStringOptionData,
-  ApplicationCommandNumericOptionData,
-  ApplicationCommandStringOptionData,
-  ApplicationCommandSubCommandData
-} from 'discord.js'
 
 class ReadyEvent extends Event<'ready'> {
   constructor () {
@@ -23,7 +12,11 @@ class ReadyEvent extends Event<'ready'> {
 
   run () {
     console.info(`Client logged in as "${bot.user?.tag}"`, chalk.bold('cli'))
-    bot.application?.commands.set(bot.commands.array)
+    bot.application?.commands.set(bot.commands.array.filter(v => v.name !== 'developer'))
+    
+    if (typeof process.env.DEV_GUILD === 'string') {
+      bot.guilds.cache.get(process.env.DEV_GUILD as string)?.commands.set(bot.commands.array)
+    }
   }
 }
 
