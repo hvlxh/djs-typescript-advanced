@@ -15,7 +15,7 @@ class ReadyEvent extends Event<'ready'> {
     bot.application?.commands.set(bot.commands.array.filter(v => v.name !== 'developer'))
     
     if (typeof process.env.DEV_GUILD === 'string') {
-      bot.guilds.cache.get(process.env.DEV_GUILD as string)?.commands.set(bot.commands.array)
+      bot.guilds.cache.get(process.env.DEV_GUILD as string)?.commands.set(bot.commands.array.filter(v => v.name === 'developer'))
     }
   }
 }
